@@ -1,0 +1,65 @@
+pluginInfo:
+  # This is default sample specification
+  # Feel free to change it
+  # Call pdk showdoc pluginspec to see the list of available fields and their description
+  pluginName: 'HSBC-ServiceNow'
+  version: '1.0.0'
+  description: 'Integrate with HSBC specific ServiceNow API'
+  author: 'Shaohua Wen'
+  supportUrl: 'none'
+  category: 'Resource Management'
+  shell: 'ec-groovy'
+ 
+# REST-backed plugin configuration
+configuration:
+  parameters:
+  -
+    name: 'authHeaders_credential'
+    label: 'HTTP Headers'
+    type: 'credential'
+    credentialType: secret
+    documentation: |
+      JSON formatted HTTP headers for authentication, for example:
+      {
+        "client_id" : "myclientid",
+        "client_secret" : "mysecret",
+        "authorization" : "Basic xxd",
+        "X-REQUEST-ID" : "myrequest ID",
+        "X-CUSTOM" : "myBU|myBUAppId"
+      }
+  checkConnection: false
+  restConfigInfo:
+    endpointLabel: 'REST Endpoint'
+    Accept: 'application/json'
+    authSchemes:
+      anonymous:
+        checkConnectionUri: '/user'
+  hasProxySupport: true
+  hasDebugLevel: true
+ 
+procedures:
+-
+  name: 'CHG_GET_NEW'
+  description: 'This procedure GET CHANGE REQUEST'
+  hasConfig: true
+  shell: 'ec-groovy'
+  parameters:
+  -
+    name: change
+    documentation: Change request number
+    required: true
+    type: entry
+    label: Change
+    restParamInfo:
+      in: path
+  # Connects REST endpoint to the plugin procedure
+  restProcedureInfo:
+    url: '/'
+    methodName: 'CHG_GET_NEW'
+    httpMethod: 'POST'
+    jsonTemplate: |
+      {
+        "url": "hsbcc/itsm/change?number={{change}}&state=-5",
+        "type": "GET"
+      }
+    contentType: 'application/json'
